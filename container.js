@@ -1,10 +1,16 @@
+var imageUrl;
+
 function getNBAMServiceControl(serviceClass,callMultiContainer) {
 
-	var serverHostname = "env-54a93b131c61.pegaenablement.com";
+
+	var serverHostname = "ai401.pegalabs.io";
 	var serverPort = "";
 	var serviceClass = serviceClass;
 	var callMultiContainer = callMultiContainer;
 	var offerLength = 0;
+
+    var imageUrlResponse;
+
 	var NBAMServiceControl = {
 
         hostName : serverHostname,
@@ -80,6 +86,8 @@ function getNBAMServiceControl(serviceClass,callMultiContainer) {
 			} else {
 				this.invokeRemoteService("ExecuteWebContainer",null,"POST",jsonObj,callbackFunction);
 			}
+
+            return jsonObj;
 
 		},
 
@@ -185,12 +193,13 @@ function getNBAMServiceControl(serviceClass,callMultiContainer) {
 
 		xhr.onreadystatechange = function () {
 			if (xhr.readyState == 4 && xhr.status == 200) {
-				var data = xhr.responseText;
-                //let someObject = {};
-                let someObject = JSON.parse(data);
 
-                console.log(data);
-                console.log("this is JSON parse: " + someObject.ContainerList[0].Status);
+
+				var data = xhr.responseText;
+                //var dataJSON = JSON.parse(data);
+
+                console.log("This is data: " + data);
+
 
 				if (data && typeof callback == "function") {
 					try {
@@ -328,9 +337,68 @@ function getNBAMServiceControl(serviceClass,callMultiContainer) {
 	invokeRemoteService: function(serviceName,urlParams,httpVerb,jsonObj,callback){
 		var serviceUrl = this.getServiceURL(serviceName,urlParams);
 		var xmlHttpReq = this.createRequest(httpVerb, serviceUrl, callback);
+
         console.log(JSON.stringify(jsonObj));
+
 		if (xmlHttpReq)	xmlHttpReq.send(JSON.stringify(jsonObj));
 	},
+
+        //replaceImageOfferUrl: function() {
+
+      //   $('#img-id').attr('src', url);
+     //    //console.log("im about to replace imageUrl");
+
+   //   },
+
+
+     getResponseDataConverted: function(responseData) { 
+
+
+
+         this.imageUrlResponse = responseData.ContainerList[0].RankedResults[0].ImageURL;
+         var containerOffers = responseData.ContainerList[0].RankedResults;
+
+
+         //console.log("function: " + containerOffers.length);
+
+         //this.replaceImageOfferUrl(this.imageUrlResponse);
+		 //$('.img-id').attr('src', this.imageUrlResponse);
+
+
+         var slideIndex = 0;
+
+
+         	function displaySlides() {
+
+                var i;
+                var allImages   = document.getElementsByClassName("img-1");
+                var allHeaders2 = document.getElementsByClassName("h2-1");
+                var allTitles   = document.getElementsByClassName("title");
+                //var allBoxes = document.getElementsByClassName("slidebox");
+
+                //for (i=0; i < allSlides.length; i++) {allSlides[i].style.display = "none";}
+    
+                for (i=0; i < containerOffers.length; i++) {
+
+                        //allSlides[i].style.display = "none";
+                        allImages[i].src 		 = containerOffers[i].ImageURL;
+                    	allHeaders2[i].innerHTML = containerOffers[i].Label;
+                    	allTitles[i].innerHTML 	 = containerOffers[i].Issue;
+    
+                        //console.log("this is i: " + i);
+    
+                }
+
+            
+            }
+
+            displaySlides();
+        
+      },
+
+
+
+
 
    sendRTSEvent : function(customerID, eventName, callback) {
      console.log("Sending RTS Event ID: " + customerID + " Event: " + eventName);
@@ -340,8 +408,6 @@ function getNBAMServiceControl(serviceClass,callMultiContainer) {
 
   };
 
+
     return NBAMServiceControl;
 }
-
-
-
